@@ -1,6 +1,10 @@
 let displayText = '';
 const display = document.querySelector('.display > h1')
-
+let currentNumber = '';
+let num1 = '';
+let num2 = '';
+let result = ''
+let operator = '';
 
 
 function add(a, b) {
@@ -45,6 +49,9 @@ function wireButtons() {
         if (btnClasses.contains('op')) {
             btn.addEventListener('click', addOperation);
         }
+        else if (btn.classList.contains('eq')) {
+            btn.addEventListener('click', calculate);
+        }
         else if (btnClasses.contains('clr')) {
             btn.addEventListener('click', clearDisplay);
         }
@@ -59,6 +66,8 @@ function wireButtons() {
 
 function addDigit() {
     displayText = displayText + event.currentTarget.textContent;
+    currentNumber = currentNumber + event.currentTarget.textContent;
+    console.log(currentNumber)
     updateDisplay();
 }
 
@@ -66,8 +75,32 @@ function addOperation() {
     if (endsWithOperation()) {
         del();
     }
-    displayText = displayText + event.currentTarget.textContent;
+
+    if (num1 === '') {
+        num1 = currentNumber;
+        currentNumber = '';
+    }
+    else if (num2 === '') {
+        num2 = currentNumber;
+        currentNumber = '';
+    }
+
+    operator = event.currentTarget.textContent;
+    displayText = displayText + operator;
     updateDisplay();
+}
+
+function calculate() {
+    if (num2 === '') {
+        num2 = currentNumber;
+        currentNumber = 0;
+    }
+    result = operate(parseInt(num1), parseInt(num2), operator)
+    console.log(`num1 ${num1} num2 ${num2} operator ${operator}`)
+    console.log(result)
+    num1 ='';
+    num2 ='';
+
 }
 
 function endsWithOperation() {
@@ -81,7 +114,10 @@ function endsWithOperation() {
 
 
 function clearDisplay() {
-    displayText = ''
+    currentNumber = '';
+    num1 = '';
+    num2 = '';
+    displayText = '';
     updateDisplay();
 }
 
