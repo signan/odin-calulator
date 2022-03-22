@@ -93,13 +93,24 @@ function addOperation() {
 function calculate() {
     if (num2 === '') {
         num2 = currentNumber;
-        currentNumber = 0;
+        currentNumber = '';
     }
     result = operate(parseInt(num1), parseInt(num2), operator)
-    console.log(`num1 ${num1} num2 ${num2} operator ${operator}`)
-    console.log(result)
-    num1 ='';
+    console.log(`num1 ${num1} num2 ${num2} operator ${operator} result:${result}`)
+    num1 = result;
     num2 ='';
+
+}
+
+function addNumber(number) {
+    if (num1 === '') {
+        num1 = currentNumber;
+        currentNumber = '';
+    }
+    else if (num2 === '') {
+        num2 = currentNumber;
+        currentNumber = '';
+    }
 
 }
 
