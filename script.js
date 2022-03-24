@@ -1,27 +1,10 @@
-const currentScreen = document.querySelector('.display > h1')
-const fullScreen = document.querySelector('.display > h3')
+let displayText = '';
+const display = document.querySelector('.display > h1')
+let currentNumber = '';
 let num1 = '';
 let num2 = '';
 let result = ''
 let operator = '';
-
-const numberButtons = document.querySelectorAll(".btn.num");
-const operatorButtons = document.querySelectorAll(".btn.op");
-const clearButton = document.getElementById("btn-clear");
-const deleteButton = document.querySelectorAll("btn-delete");
-const equalsButton = document.querySelectorAll("btn-equals");
-const pointButton = document.querySelectorAll("btn-point");
-console.log(operatorButtons);
-
-equalsButton.addEventListener('click', evaluate);
-clearButton.addEventListener('click', clear);
-deleteButton.addEventListener('click', deleteNumber);
-pointButton.addEventListener('click', appendPoint);
-numberButtons.forEach((button) => button.addEventListener('click', () => appendNumber(button.textContent)));
-operatorButtons.forEach((button) => button.addEventListener('click', () => setOpertaion(button.textContent)));
-
-
-
 
 
 function add(a, b) {
@@ -41,56 +24,56 @@ function divide(a, b) {
 }
 
 function operate(a, b, operator) {
-    // convert a and b to integers
     switch(operator) {
         case '+':
             return add(a, b);
+            break;
         case '-':
             return subtract(a, b);
+            break;
         case '*':
             return multiply(a, b);
+            break;
         case '/':
             return divide(a, b);
+            break;
+        default:
+            console.log('not a number');
     }
 }
 
-function appendNumber() {
-    if (result) {
-        clear();
-        result = null;
-    }
+function wireButtons() {
+    let buttons = document.querySelectorAll(".btn");
+    buttons.forEach(btn => {
+        let btnClasses = btn.classList;
+        if (btnClasses.contains('op')) {
+            btn.addEventListener('click', addOperation);
+        }
+        else if (btn.classList.contains('eq')) {
+            btn.addEventListener('click', calculate);
+        }
+        else if (btnClasses.contains('clr')) {
+            btn.addEventListener('click', clearDisplay);
+        }
+        else if (btnClasses.contains('del')) {
+            btn.addEventListener('click', del);
+        }
+        else {
+            btn.addEventListener('click', addDigit);
+        }
+    });
+}
+
+function addDigit() {
     displayText = displayText + event.currentTarget.textContent;
     currentNumber = currentNumber + event.currentTarget.textContent;
-    console.log(displayText)
-    updateScreen();
+    console.log(currentNumber)
+    updateDisplay();
 }
 
-function setOperation() {
+function addOperation() {
     if (endsWithOperation()) {
-        console.log('del')
-
-        deleteNumber();
-    }
-
-    if (displayText === '' & event.currentTarget.textContent != '-') {
-        return;
-    }
-
-    if (displayText === '') {
-        if (event.currentTarget.textContent === '-') {
-            if (currentNumber.startsWith('-')) {
-                return;
-            }
-            displayText = displayText + event.currentTarget.textContent;
-            currentNumber = currentNumber + event.currentTarget.textContent;
-            updateScreen();
-            return;
-        }
-        return;
-    }
-
-    if(operator != '') {
-        evaluate()
+        del();
     }
 
     if (num1 === '') {
@@ -104,13 +87,10 @@ function setOperation() {
 
     operator = event.currentTarget.textContent;
     displayText = displayText + operator;
-    updateScreen();
+    updateDisplay();
 }
 
-function evaluate() {
-    if (operator === '') {
-        return;
-    }
+function calculate() {
     if (num2 === '') {
         num2 = currentNumber;
         currentNumber = '';
@@ -119,9 +99,6 @@ function evaluate() {
     console.log(`num1 ${num1} num2 ${num2} operator ${operator} result:${result}`)
     num1 = result;
     num2 ='';
-    operator = '';
-    displayText = String(result);
-    updateScreen();
 
 }
 
@@ -147,20 +124,20 @@ function endsWithOperation() {
 }
 
 
-function clear() {
+function clearDisplay() {
     currentNumber = '';
     num1 = '';
     num2 = '';
     displayText = '';
-    updateScreen();
+    updateDisplay();
 }
 
-function deleteNumber() {
+function del() {
     displayText = displayText.slice(0, -1);
-    updateScreen();
+    updateDisplay();
 }
 
-function updateScreen() {
+function updateDisplay() {
     display.textContent = displayText;
 }
 
