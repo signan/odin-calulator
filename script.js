@@ -1,24 +1,26 @@
-const currentScreen = document.querySelector('.display > h1')
-const fullScreen = document.querySelector('.display > h3')
+const currentScreen = document.querySelector('.screen > h1')
+const fullScreen = document.querySelector('.screen > h3')
 let num1 = '';
 let num2 = '';
 let result = ''
-let operator = '';
+let currentOperator = '';
+let shouldClear = false;
+
 
 const numberButtons = document.querySelectorAll(".btn.num");
 const operatorButtons = document.querySelectorAll(".btn.op");
 const clearButton = document.getElementById("btn-clear");
-const deleteButton = document.querySelectorAll("btn-delete");
-const equalsButton = document.querySelectorAll("btn-equals");
-const pointButton = document.querySelectorAll("btn-point");
+const deleteButton = document.getElementById("btn-delete");
+const equalsButton = document.getElementById("btn-equals");
+const pointButton = document.getElementById("btn-point");
 console.log(operatorButtons);
 
 equalsButton.addEventListener('click', evaluate);
-clearButton.addEventListener('click', clear);
+clearButton.addEventListener('click', reset);
 deleteButton.addEventListener('click', deleteNumber);
 pointButton.addEventListener('click', appendPoint);
 numberButtons.forEach((button) => button.addEventListener('click', () => appendNumber(button.textContent)));
-operatorButtons.forEach((button) => button.addEventListener('click', () => setOpertaion(button.textContent)));
+operatorButtons.forEach((button) => button.addEventListener('click', () => setOperation(button.textContent)));
 
 
 
@@ -54,115 +56,86 @@ function operate(a, b, operator) {
     }
 }
 
-function appendNumber() {
-    if (result) {
-        clear();
-        result = null;
+function appendNumber(number) {
+    if (currentScreen.textContent === '0' || shouldClear) {
+        clearCurrentScreen();
+        shouldClear = false;
     }
-    displayText = displayText + event.currentTarget.textContent;
-    currentNumber = currentNumber + event.currentTarget.textContent;
-    console.log(displayText)
-    updateScreen();
+    currentScreen.textContent += number;
 }
 
-function setOperation() {
+function setOperation(operator) {
+    // changes the previous operator if any exists
     if (endsWithOperation()) {
-        console.log('del')
-
-        deleteNumber();
+        fullScreen.textContent = fullScreen.textContent.slice(0, -1);
     }
 
-    if (displayText === '' & event.currentTarget.textContent != '-') {
+    if(num1 != '' && currentOperator) {
+        evaluate();
+    }
+
+    num1 = currentScreen.textContent;
+    fullScreen.textContent = currentScreen.textContent + operator;
+    currentOperator = operator;
+    shouldClear = true;
+}
+
+function appendPoint() {
+    if (currentScreen.textContent.includes('.')) {
         return;
     }
-
-    if (displayText === '') {
-        if (event.currentTarget.textContent === '-') {
-            if (currentNumber.startsWith('-')) {
-                return;
-            }
-            displayText = displayText + event.currentTarget.textContent;
-            currentNumber = currentNumber + event.currentTarget.textContent;
-            updateScreen();
-            return;
-        }
-        return;
-    }
-
-    if(operator != '') {
-        evaluate()
-    }
-
-    if (num1 === '') {
-        num1 = currentNumber;
-        currentNumber = '';
-    }
-    else if (num2 === '') {
-        num2 = currentNumber;
-        currentNumber = '';
-    }
-
-    operator = event.currentTarget.textContent;
-    displayText = displayText + operator;
-    updateScreen();
+    currentScreen.textContent += '.';
 }
 
 function evaluate() {
-    if (operator === '') {
+    console.log('test')
+    if (currentOperator === '') {
+        console.log('no operator')
+
         return;
     }
     if (num2 === '') {
-        num2 = currentNumber;
-        currentNumber = '';
+        num2 = currentScreen.textContent;
     }
-    result = operate(parseInt(num1), parseInt(num2), operator)
-    console.log(`num1 ${num1} num2 ${num2} operator ${operator} result:${result}`)
+    
+    fullScreen.textContent += num2;
+
+    num1 = Number(num1);
+    num2 = Number(num2);
+
+    result = operate(num1, num2, currentOperator);
+    console.log(`num1 ${num1} num2 ${num2} operator ${currentOperator} result:${result}`);
+    fullScreen.textContent += '='
+    currentScreen.textContent = result;
     num1 = result;
     num2 ='';
-    operator = '';
-    displayText = String(result);
-    updateScreen();
-
-}
-
-function addNumber(number) {
-    if (num1 === '') {
-        num1 = currentNumber;
-        currentNumber = '';
-    }
-    else if (num2 === '') {
-        num2 = currentNumber;
-        currentNumber = '';
-    }
-
+    currentOperator = '';
 }
 
 function endsWithOperation() {
     let operations = ['+', '-', '*', '/']
-    for (let operation of operations) {
-        if(displayText.endsWith(operation))
-            return true;
-    }
-    return false;
+    return operations.some((operator) => {
+        return fullScreen.textContent.endsWith(operator)
+    })
 }
 
-
-function clear() {
-    currentNumber = '';
-    num1 = '';
-    num2 = '';
-    displayText = '';
-    updateScreen();
+function clearCurrentScreen() {
+    currentScreen.textContent = '';
 }
 
 function deleteNumber() {
-    displayText = displayText.slice(0, -1);
-    updateScreen();
+    if (currentScreen.textContent === '0') {
+        return;
+    }
+    currentScreen.textContent = currentScreen.textContent.slice(0, -1);
 }
 
-function updateScreen() {
-    display.textContent = displayText;
+function reset() {
+    fullScreen.textContent = ''
+    currentScreen.textContent = '0';
+    num1 = '';
+    num2 = '';
+    result = ''
+    currentOperator = '';
+    shouldClear = false;
 }
-
-
-wireButtons();
